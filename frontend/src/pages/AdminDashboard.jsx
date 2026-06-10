@@ -14,6 +14,7 @@ const AdminDashboard = () => {
   const [logs, setLogs] = useState([]);
   
   const [loading, setLoading] = useState(true);
+  const [firstLoad, setFirstLoad] = useState(true); // Prevent spinner flash on tab switches
   const [error, setError] = useState('');
 
   // Fetch Metrics
@@ -70,7 +71,9 @@ const AdminDashboard = () => {
 
   // Load data based on active tab
   const loadData = async () => {
-    setLoading(true);
+    if (firstLoad) {
+      setLoading(true);
+    }
     setError('');
     try {
       await fetchMetrics();
@@ -85,6 +88,7 @@ const AdminDashboard = () => {
       setError('Failed to fetch data from the server.');
     } finally {
       setLoading(false);
+      setFirstLoad(false); // Disable loading spinner after initial load
     }
   };
 
