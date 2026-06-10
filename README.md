@@ -1,16 +1,23 @@
 # Avidus RBAC & User Activity Portal
 
-A professional full-stack web application designed to manage and monitor user access permissions and track system activity logs. This portal provides clean, simplified workflows for standard users to manage their individual tasks, while granting administrators complete oversight over user accounts, task metrics, and system-wide audit feeds.
+## 📝 Project Description
+Avidus RBAC & User Activity Portal is a secure, full-stack web application designed to manage user access and permissions through Role-Based Access Control (RBAC) while maintaining a detailed audit log of user actions. The system is split into a secure backend server and an intuitive client dashboard.
+
+The application serves two distinct user roles:
+1. **Standard Users:** Can sign up, log in, and access their own personal task manager board to create, read, update, and delete tasks. To ensure strict data isolation and privacy, users are restricted from viewing or modifying other users' tasks.
+2. **Administrators (Admin):** Have full system oversight through a restricted Admin Control Panel. Admins can view analytics, manage user statuses (activate or suspend/deactivate accounts), delete user accounts, monitor all tasks created across the platform, delete any task, and review a live, system-wide chronological activity log.
+
+Security is enforced at both layers: the React frontend implements route-guarding components to restrict unauthorized users, and the Express backend validates JSON Web Tokens (JWT) and roles on every protected endpoint. Suspended or deactivated users are instantly denied API and route access.
 
 ---
 
 ## 🚀 Key Features
 
 ### 1. Role-Based Access Control (RBAC)
-- **Protected Routing:** Strict frontend route guarding (using React Router DOM wrappers) and backend route protection (using Express middlewares).
+- **Protected Routing:** Strict frontend route guarding (using React Router DOM wrappers) and backend route protection (using Express middlewares) to prevent unauthorized access.
 - **Status Audits:** Real-time account status checks (Active/Inactive) that instantly restrict API and page access for deactivated users.
 - **User Role:** Create and manage individual tasks only.
-- **Admin Role:** Complete control panel access to oversee all accounts and tasks.
+- **Admin Role:** Complete control panel access to oversee all accounts, tasks, and system logs.
 
 ### 2. User Dashboard (My Tasks)
 - Sleek, list-based task tracker styled with a clean flat monochrome theme.
