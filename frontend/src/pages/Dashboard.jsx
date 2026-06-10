@@ -192,7 +192,7 @@ const Dashboard = () => {
 
   return (
     <div className="main-content">
-      <div className="container" style={{ maxWidth: '800px' }}>
+      <div className="container">
         
         {/* Simple Top Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
