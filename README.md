@@ -1,50 +1,35 @@
 # Avidus RBAC & User Activity Portal
 
-A modern, simplistic, and professional full-stack web application implementing Role-Based Access Control (RBAC) and user activity logging.
-
----
-
-## 📸 Interface Screenshots
-
-*Create a `screenshots/` folder at the root of the project and save your screenshots as `register.png`, `user-dashboard.png`, and `admin-dashboard.png` to display them here.*
-
-### 1. User Sign Up
-![Sign Up](./screenshots/register.png)
-
-### 2. Personal Task Dashboard
-![User Dashboard](./screenshots/user-dashboard.png)
-
-### 3. Admin Control Panel
-![Admin Dashboard](./screenshots/admin-dashboard.png)
+A professional full-stack web application designed to manage and monitor user access permissions and track system activity logs. This portal provides clean, simplified workflows for standard users to manage their individual tasks, while granting administrators complete oversight over user accounts, task metrics, and system-wide audit feeds.
 
 ---
 
 ## 🚀 Key Features
 
-### 1. Role-Based Authentication & Authorization (RBAC)
-- JWT-based authentication with state stored in React Context.
-- Active/Inactive account locks (suspension immediately revokes API access).
-- Route guarding on both Frontend (Vite + React Router) and Backend (Express middlewares) to prevent unauthorized access.
+### 1. Role-Based Access Control (RBAC)
+- **Protected Routing:** Strict frontend route guarding (using React Router DOM wrappers) and backend route protection (using Express middlewares).
+- **Status Audits:** Real-time account status checks (Active/Inactive) that instantly restrict API and page access for deactivated users.
+- **User Role:** Create and manage individual tasks only.
+- **Admin Role:** Complete control panel access to oversee all accounts and tasks.
 
 ### 2. User Dashboard (My Tasks)
-- Flat, high-contrast, minimalist task list manager.
-- Inline circle checkbox completion toggles.
-- Search filters and status tabs (`All`, `Pending`, `Completed`).
-- Personal task constraints: users can only view, edit, and delete their own tasks.
+- Sleek, list-based task tracker styled with a clean flat monochrome theme.
+- Inline checklist checkboxes to quickly toggle completion status.
+- Text-based search bar and status filter buttons (`All`, `Pending`, `Completed`).
+- Data isolation: users can only view, edit, and delete their own tasks.
 
 ### 3. Admin Control Panel
-- **Analytics Metrics:** Top counters displaying Total Users, Total Tasks, Completed Tasks, and Pending Tasks.
-- **User Management:** Secure table to view registered users, toggle status (`Active`/`Inactive`), and delete accounts.
-- **Task Monitoring:** System-wide overview of all tasks in the system with search capability and option to delete any task.
-- **Activity Logs:** Audit timeline listing user logins, task creation, status updates, and deletions.
+- **Analytics Metrics:** Dashboard widget displaying counts for total users, total tasks, completed tasks, and pending tasks.
+- **User Management:** Oversee registered accounts, toggle active status (`Active`/`Inactive`), and delete users.
+- **Task Monitoring:** View and track all tasks in the system, with the option to delete any task.
+- **System Logs:** A chronological audit timeline of all logins, task creation, status updates, and deletions in the application.
 
 ---
 
 ## 🛠️ Technology Stack
-- **Backend:** Node.js, Express, MongoDB (via Mongoose), JSON Web Tokens (JWT), bcryptjs
-- **Frontend:** React.js (Vite), React Router DOM
-- **Deployment:** Vercel (includes `vercel.json` routing rewrites for both directories)
-- **Styling:** Custom Flat Monochrome CSS (built with *Inter* typeface)
+- **Backend:** Node.js, Express, MongoDB (via Mongoose), JSON Web Tokens (JWT) for authentication, and bcryptjs for password hashing.
+- **Frontend:** React.js (Vite), React Router DOM.
+- **Styling:** Custom flat monochrome CSS using the *Inter* typeface, optimized for maximum text legibility and contrast.
 
 ---
 
@@ -65,10 +50,10 @@ A modern, simplistic, and professional full-stack web application implementing R
    ```
 3. Create a `.env` file in the `backend/` directory and configure the variables:
    ```env
-   MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/avidus?retryWrites=true&w=majority
-   JWT_SECRET=your_jwt_secret_key_here
+   MONGO_URI=your_mongodb_connection_string
+   JWT_SECRET=your_secure_jwt_secret_key
    ```
-4. Start the backend:
+4. Start the backend dev server:
    ```bash
    npm run dev
    ```
@@ -82,22 +67,10 @@ A modern, simplistic, and professional full-stack web application implementing R
    ```bash
    npm install
    ```
-3. Start the dev server:
+3. Create a `.env` or set environment variables:
+   - Make sure to point `VITE_API_URL` to your backend server (e.g. `http://localhost:5000/api`).
+4. Start the dev server:
    ```bash
    npm run dev
    ```
-4. Open `http://localhost:5173` in your browser.
-
----
-
-## ☁️ Deploying on Vercel
-
-Both directories contain Vercel configuration files (`vercel.json` for Serverless Express function routing in the backend and route rewrites to prevent 404 page refreshes in the frontend).
-
-### Environment Variables
-When deploying on Vercel, make sure to set the following:
-- **For Backend:**
-  - `MONGO_URI`: Your MongoDB connection string.
-  - `JWT_SECRET`: A secure string for signing tokens.
-- **For Frontend:**
-  - `VITE_API_URL`: Your deployed Vercel backend URL (e.g., `https://your-backend-url.vercel.app/api`).
+5. Open `http://localhost:5173` in your browser.
