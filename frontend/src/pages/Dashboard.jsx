@@ -4,9 +4,14 @@ import { AuthContext, API_URL } from '../context/AuthContext';
 const Dashboard = () => {
   const { user } = useContext(AuthContext);
   const [tasks, setTasks] = useState([]);
+  const [filteredTasks, setFilteredTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   
+  // Search & Filter State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All'); // All, Pending, Completed
+
   // Add task state
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -19,9 +24,8 @@ const Dashboard = () => {
   const [editDescription, setEditDescription] = useState('');
   const [editStatus, setEditStatus] = useState('Pending');
 
-  // Fetch user's tasks
+  // Fetch tasks
   const fetchTasks = async () => {
-    setLoading(true);
     try {
       const res = await fetch(`${API_URL}/tasks`, {
         headers: {
@@ -48,6 +52,27 @@ const Dashboard = () => {
     }
   }, [user]);
 
+  // Apply filters and search
+  useEffect(() => {
+    let result = tasks;
+
+    // Status filter
+    if (statusFilter !== 'All') {
+      result = result.filter(t => t.status === statusFilter);
+    }
+
+    // Search query
+    if (searchQuery.trim() !== '') {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(t => 
+        t.title.toLowerCase().includes(query) || 
+        (t.description && t.description.toLowerCase().includes(query))
+      );
+    }
+
+    setFilteredTasks(result);
+  }, [tasks, statusFilter, searchQuery]);
+
   // Handle create task
   const handleCreateTask = async (e) => {
     e.preventDefault();
@@ -68,7 +93,7 @@ const Dashboard = () => {
         setTitle('');
         setDescription('');
         setShowAddModal(false);
-        fetchTasks(); // Reload tasks
+        fetchTasks();
       } else {
         alert(data.message || 'Failed to create task');
       }
@@ -80,7 +105,7 @@ const Dashboard = () => {
     }
   };
 
-  // Handle toggle task status (Completed/Pending)
+  // Toggle status via check button
   const handleToggleStatus = async (task) => {
     const nextStatus = task.status === 'Completed' ? 'Pending' : 'Completed';
     try {
@@ -96,7 +121,7 @@ const Dashboard = () => {
       if (data.success) {
         setTasks(tasks.map(t => t._id === task._id ? data.task : t));
       } else {
-        alert(data.message || 'Failed to update task status');
+        alert(data.message || 'Failed to update task');
       }
     } catch (err) {
       console.error(err);
@@ -144,7 +169,7 @@ const Dashboard = () => {
 
   // Handle delete task
   const handleDeleteTask = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this task?')) return;
+    if (!window.confirm('Delete this task?')) return;
 
     try {
       const res = await fetch(`${API_URL}/tasks/${id}`, {
@@ -167,87 +192,153 @@ const Dashboard = () => {
 
   return (
     <div className="main-content">
-      <div className="container">
+      <div className="container" style={{ maxWidth: '800px' }}>
         
-        {/* Header section */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
+        {/* Simple Top Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
           <div>
-            <h1 style={{ fontSize: '2.25rem', fontWeight: 800 }}>My Task Board</h1>
-            <p style={{ color: 'var(--text-secondary)' }}>Create, manage, and complete your individual tasks</p>
+            <h1 style={{ fontSize: '1.5rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              Tasks <span style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-secondary)' }}>({tasks.length})</span>
+            </h1>
           </div>
-          <button onClick={() => setShowAddModal(true)} className="btn btn-primary">
-            + New Task
+          <button onClick={() => setShowAddModal(true)} className="btn btn-primary btn-sm">
+            + Add Task
           </button>
         </div>
 
-        {/* Errors */}
-        {error && (
-          <div className="alert alert-danger" style={{ marginBottom: '2rem' }}>
-            {error}
-          </div>
-        )}
+        {error && <div className="alert alert-danger">{error}</div>}
 
-        {/* Loading Spinner */}
+        {/* Simplistic Filters and Search Bar */}
+        <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.25rem', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', background: 'var(--bg-secondary)', padding: '2px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)' }}>
+            {['All', 'Pending', 'Completed'].map((filter) => (
+              <button
+                key={filter}
+                onClick={() => setStatusFilter(filter)}
+                style={{
+                  background: statusFilter === filter ? 'rgba(255,255,255,0.05)' : 'transparent',
+                  border: 'none',
+                  color: statusFilter === filter ? 'var(--accent-color)' : 'var(--text-secondary)',
+                  padding: '0.35rem 0.75rem',
+                  fontSize: '0.75rem',
+                  fontWeight: '600',
+                  borderRadius: 'var(--radius-md)',
+                  cursor: 'pointer',
+                  transition: 'color 0.1s'
+                }}
+              >
+                {filter}
+              </button>
+            ))}
+          </div>
+
+          <input
+            type="text"
+            className="form-input"
+            style={{ width: '220px', padding: '0.4rem 0.75rem', fontSize: '0.75rem', height: '32px' }}
+            placeholder="Search tasks..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+
+        {/* Task List container */}
         {loading ? (
           <div className="spinner-container">
             <div className="spinner"></div>
           </div>
-        ) : tasks.length === 0 ? (
-          <div className="glass-panel" style={{ padding: '4rem 2rem', textAlign: 'center', borderStyle: 'dashed' }}>
-            <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem', color: '#ffffff' }}>No tasks found</h3>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.875rem' }}>
-              Create your very first task to get started on your dashboard!
+        ) : filteredTasks.length === 0 ? (
+          <div className="glass-panel" style={{ padding: '3rem 2rem', textAlign: 'center', borderStyle: 'dashed', background: 'rgba(255,255,255,0.01)' }}>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
+              {searchQuery || statusFilter !== 'All' ? 'No tasks match your filters.' : 'No tasks listed. Add one to start tracking!'}
             </p>
-            <button onClick={() => setShowAddModal(true)} className="btn btn-primary">
-              Create a Task
-            </button>
           </div>
         ) : (
-          <div className="dashboard-grid">
-            {tasks.map((task) => (
-              <div key={task._id} className="glass-panel card">
-                <div className="card-header">
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', maxWidth: '75%' }}>
+          <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
+            {filteredTasks.map((task) => (
+              <div 
+                key={task._id} 
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  padding: '0.85rem 1rem', 
+                  borderBottom: '1px solid var(--border-color)',
+                  justifyContent: 'space-between',
+                  gap: '1rem',
+                  background: task.status === 'Completed' ? 'rgba(16, 185, 129, 0.01)' : 'transparent',
+                }}
+              >
+                {/* Checkbox + Title section */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: 0 }}>
+                  <button
+                    onClick={() => handleToggleStatus(task)}
+                    style={{
+                      width: '18px',
+                      height: '18px',
+                      borderRadius: '50%',
+                      border: `2px solid ${task.status === 'Completed' ? 'var(--accent-color)' : 'rgba(255, 255, 255, 0.2)'}`,
+                      background: task.status === 'Completed' ? 'var(--accent-color)' : 'transparent',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: 0,
+                      outline: 'none',
+                      transition: 'all 0.1s'
+                    }}
+                    title={task.status === 'Completed' ? 'Mark Pending' : 'Mark Completed'}
+                  >
+                    {task.status === 'Completed' && (
+                      <span style={{ color: '#05070a', fontSize: '10px', fontWeight: 'bold' }}>✓</span>
+                    )}
+                  </button>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
                     <span 
-                      className="card-title" 
                       style={{ 
+                        fontSize: '0.85rem', 
+                        fontWeight: '500',
+                        color: task.status === 'Completed' ? 'var(--text-secondary)' : '#ffffff',
                         textDecoration: task.status === 'Completed' ? 'line-through' : 'none',
-                        opacity: task.status === 'Completed' ? 0.6 : 1 
+                        textOverflow: 'ellipsis',
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap'
                       }}
                     >
                       {task.title}
                     </span>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                      Created: {new Date(task.createdAt).toLocaleDateString()}
-                    </span>
+                    {task.description && (
+                      <span 
+                        style={{ 
+                          fontSize: '0.75rem', 
+                          color: 'var(--text-secondary)',
+                          opacity: 0.7,
+                          textOverflow: 'ellipsis',
+                          overflow: 'hidden',
+                          whiteSpace: 'nowrap',
+                          marginTop: '1px'
+                        }}
+                      >
+                        {task.description}
+                      </span>
+                    )}
                   </div>
-                  <span className={`badge ${task.status === 'Completed' ? 'badge-completed' : 'badge-pending'}`}>
-                    {task.status}
-                  </span>
                 </div>
-                
-                <div className="card-body">
-                  <p style={{ 
-                    whiteSpace: 'pre-wrap',
-                    textDecoration: task.status === 'Completed' ? 'line-through' : 'none',
-                    opacity: task.status === 'Completed' ? 0.5 : 0.8 
-                  }}>
-                    {task.description || 'No description provided.'}
-                  </p>
-                </div>
-                
-                <div className="card-footer">
+
+                {/* Edit & Delete Controls */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
                   <button 
-                    onClick={() => handleToggleStatus(task)} 
+                    onClick={() => openEditModal(task)} 
                     className="btn btn-secondary btn-sm"
-                    style={{ borderColor: task.status === 'Completed' ? 'rgba(16, 185, 129, 0.3)' : 'var(--border-color)' }}
+                    style={{ padding: '0.25rem 0.5rem', fontSize: '0.7rem' }}
                   >
-                    {task.status === 'Completed' ? 'Reopen' : 'Complete'}
-                  </button>
-                  <button onClick={() => openEditModal(task)} className="btn btn-secondary btn-sm">
                     Edit
                   </button>
-                  <button onClick={() => handleDeleteTask(task._id)} className="btn btn-danger btn-sm">
+                  <button 
+                    onClick={() => handleDeleteTask(task._id)} 
+                    className="btn btn-danger btn-sm"
+                    style={{ padding: '0.25rem 0.5rem', fontSize: '0.7rem' }}
+                  >
                     Delete
                   </button>
                 </div>
@@ -256,19 +347,19 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Create Task Modal */}
+        {/* Add Modal */}
         {showAddModal && (
           <div className="modal-overlay">
-            <div className="modal-content glass-panel">
-              <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem' }}>Create New Task</h3>
+            <div className="modal-content glass-panel" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--accent-color)' }}>
+              <h3 style={{ fontSize: '1rem', marginBottom: '1.25rem' }}>Create Task</h3>
               
               <form onSubmit={handleCreateTask}>
                 <div className="form-group">
-                  <label className="form-label">Task Title</label>
+                  <label className="form-label">Title</label>
                   <input
                     type="text"
                     className="form-input"
-                    placeholder="Enter short title"
+                    placeholder="Task name"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     required
@@ -278,10 +369,10 @@ const Dashboard = () => {
                 <div className="form-group">
                   <label className="form-label">Description (Optional)</label>
                   <textarea
-                    rows="4"
+                    rows="3"
                     className="form-input"
-                    style={{ fontFamily: 'inherit', resize: 'vertical' }}
-                    placeholder="Provide details about this task"
+                    style={{ resize: 'vertical' }}
+                    placeholder="Task description..."
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                   />
@@ -291,16 +382,16 @@ const Dashboard = () => {
                   <button 
                     type="button" 
                     onClick={() => setShowAddModal(false)} 
-                    className="btn btn-secondary"
+                    className="btn btn-secondary btn-sm"
                   >
                     Cancel
                   </button>
                   <button 
                     type="submit" 
-                    className="btn btn-primary"
+                    className="btn btn-primary btn-sm"
                     disabled={submitting}
                   >
-                    {submitting ? 'Creating...' : 'Create'}
+                    {submitting ? 'Adding...' : 'Add'}
                   </button>
                 </div>
               </form>
@@ -308,15 +399,15 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Edit Task Modal */}
+        {/* Edit Modal */}
         {editingTask && (
           <div className="modal-overlay">
-            <div className="modal-content glass-panel">
-              <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem' }}>Edit Task</h3>
+            <div className="modal-content glass-panel" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--accent-color)' }}>
+              <h3 style={{ fontSize: '1rem', marginBottom: '1.25rem' }}>Edit Task</h3>
               
               <form onSubmit={handleUpdateTask}>
                 <div className="form-group">
-                  <label className="form-label">Task Title</label>
+                  <label className="form-label">Title</label>
                   <input
                     type="text"
                     className="form-input"
@@ -329,19 +420,19 @@ const Dashboard = () => {
                 <div className="form-group">
                   <label className="form-label">Description</label>
                   <textarea
-                    rows="4"
+                    rows="3"
                     className="form-input"
-                    style={{ fontFamily: 'inherit', resize: 'vertical' }}
+                    style={{ resize: 'vertical' }}
                     value={editDescription}
                     onChange={(e) => setEditDescription(e.target.value)}
                   />
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Task Status</label>
+                  <label className="form-label">Status</label>
                   <select
                     className="form-input"
-                    style={{ background: 'var(--bg-secondary)', cursor: 'pointer' }}
+                    style={{ background: 'var(--bg-primary)', cursor: 'pointer' }}
                     value={editStatus}
                     onChange={(e) => setEditStatus(e.target.value)}
                   >
@@ -354,16 +445,16 @@ const Dashboard = () => {
                   <button 
                     type="button" 
                     onClick={() => setEditingTask(null)} 
-                    className="btn btn-secondary"
+                    className="btn btn-secondary btn-sm"
                   >
                     Cancel
                   </button>
                   <button 
                     type="submit" 
-                    className="btn btn-primary"
+                    className="btn btn-primary btn-sm"
                     disabled={submitting}
                   >
-                    {submitting ? 'Updating...' : 'Save Changes'}
+                    {submitting ? 'Saving...' : 'Save'}
                   </button>
                 </div>
               </form>

@@ -4,8 +4,8 @@ import { AuthContext, API_URL } from '../context/AuthContext';
 const AdminDashboard = () => {
   const { user } = useContext(AuthContext);
   
-  // Tab control
-  const [activeTab, setActiveTab] = useState('analytics');
+  // Tab control - defaults directly to User Management for rapid utility
+  const [activeTab, setActiveTab] = useState('users');
 
   // Page States
   const [metrics, setMetrics] = useState({ totalUsers: 0, totalTasks: 0, completedTasks: 0, pendingTasks: 0 });
@@ -68,7 +68,7 @@ const AdminDashboard = () => {
     }
   };
 
-  // Load appropriate data based on active tab
+  // Load data based on active tab
   const loadData = async () => {
     setLoading(true);
     setError('');
@@ -94,7 +94,7 @@ const AdminDashboard = () => {
     }
   }, [user, activeTab]);
 
-  // Handle User Status toggle
+  // Handle User Status toggle (Active/Inactive)
   const handleToggleUserStatus = async (targetUser) => {
     const newStatus = targetUser.status === 'Active' ? 'Inactive' : 'Active';
     try {
@@ -109,7 +109,7 @@ const AdminDashboard = () => {
       const data = await res.json();
       if (data.success) {
         setUsers(users.map(u => u._id === targetUser._id ? { ...u, status: data.user.status } : u));
-        fetchMetrics(); // User count status could impact metrics eventually
+        fetchMetrics();
       } else {
         alert(data.message || 'Failed to update user status');
       }
@@ -125,7 +125,7 @@ const AdminDashboard = () => {
       alert('You cannot delete your own admin account.');
       return;
     }
-    if (!window.confirm(`Are you sure you want to delete user ${email} and all of their tasks?`)) return;
+    if (!window.confirm(`Delete user ${email} and all of their tasks?`)) return;
 
     try {
       const res = await fetch(`${API_URL}/users/${id}`, {
@@ -147,7 +147,7 @@ const AdminDashboard = () => {
 
   // Handle Admin Deleting any Task
   const handleDeleteTask = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this task?')) return;
+    if (!window.confirm('Delete this task?')) return;
 
     try {
       const res = await fetch(`${API_URL}/tasks/${id}`, {
@@ -171,64 +171,60 @@ const AdminDashboard = () => {
     <div className="main-content">
       <div className="container">
         
-        {/* Header Section */}
-        <div style={{ marginBottom: '2rem' }}>
-          <h1 style={{ fontSize: '2.25rem', fontWeight: 800 }}>Admin Dashboard</h1>
-          <p style={{ color: 'var(--text-secondary)' }}>System administration, access control, and task activity feeds</p>
+        {/* Simple Dashboard Header */}
+        <div style={{ marginBottom: '1.5rem' }}>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Admin Console</h1>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>System statistics, user logs, and permissions management</p>
         </div>
 
-        {/* Analytics Section - Always Visible at Top */}
-        <div className="stats-grid">
-          <div className="glass-panel stat-card" style={{ borderLeft: '4px solid var(--accent-color)' }}>
-            <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', fontWeight: '500' }}>Total System Users</span>
-            <span className="stat-value text-gradient">{metrics.totalUsers}</span>
+        {/* Compact Analytics Metrics */}
+        <div className="stats-grid" style={{ marginBottom: '1.75rem' }}>
+          <div className="glass-panel stat-card" style={{ padding: '0.85rem 1rem', borderLeftColor: 'var(--accent-color)' }}>
+            <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: '600', textTransform: 'uppercase' }}>Users</span>
+            <span className="stat-value" style={{ fontSize: '1.35rem', marginTop: '1px' }}>{metrics.totalUsers}</span>
           </div>
-          <div className="glass-panel stat-card" style={{ borderLeft: '4px solid #3b82f6' }}>
-            <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', fontWeight: '500' }}>Total Tasks Created</span>
-            <span className="stat-value">{metrics.totalTasks}</span>
+          <div className="glass-panel stat-card" style={{ padding: '0.85rem 1rem', borderLeftColor: '#3b82f6' }}>
+            <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: '600', textTransform: 'uppercase' }}>Total Tasks</span>
+            <span className="stat-value" style={{ fontSize: '1.35rem', marginTop: '1px' }}>{metrics.totalTasks}</span>
           </div>
-          <div className="glass-panel stat-card" style={{ borderLeft: '4px solid var(--success-color)' }}>
-            <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', fontWeight: '500' }}>Completed Tasks</span>
-            <span className="stat-value" style={{ color: 'var(--success-color)' }}>{metrics.completedTasks}</span>
+          <div className="glass-panel stat-card" style={{ padding: '0.85rem 1rem', borderLeftColor: 'var(--success-color)' }}>
+            <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: '600', textTransform: 'uppercase' }}>Completed</span>
+            <span className="stat-value" style={{ fontSize: '1.35rem', marginTop: '1px', color: 'var(--success-color)' }}>{metrics.completedTasks}</span>
           </div>
-          <div className="glass-panel stat-card" style={{ borderLeft: '4px solid var(--warning-color)' }}>
-            <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', fontWeight: '500' }}>Pending Tasks</span>
-            <span className="stat-value" style={{ color: 'var(--warning-color)' }}>{metrics.pendingTasks}</span>
+          <div className="glass-panel stat-card" style={{ padding: '0.85rem 1rem', borderLeftColor: 'var(--warning-color)' }}>
+            <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: '600', textTransform: 'uppercase' }}>Pending</span>
+            <span className="stat-value" style={{ fontSize: '1.35rem', marginTop: '1px', color: 'var(--warning-color)' }}>{metrics.pendingTasks}</span>
           </div>
         </div>
 
-        {/* Error Block */}
         {error && <div className="alert alert-danger">{error}</div>}
 
-        {/* Navigation Tabs */}
-        <div className="tabs-header">
-          <button 
-            onClick={() => setActiveTab('analytics')} 
-            className={`tab-btn ${activeTab === 'analytics' ? 'active' : ''}`}
-          >
-            System Summary
-          </button>
+        {/* Cleaner Tabs */}
+        <div className="tabs-header" style={{ marginBottom: '1.25rem' }}>
           <button 
             onClick={() => setActiveTab('users')} 
             className={`tab-btn ${activeTab === 'users' ? 'active' : ''}`}
+            style={{ padding: '0.5rem 0.75rem', fontSize: '0.75rem' }}
           >
             User Management
           </button>
           <button 
             onClick={() => setActiveTab('tasks')} 
             className={`tab-btn ${activeTab === 'tasks' ? 'active' : ''}`}
+            style={{ padding: '0.5rem 0.75rem', fontSize: '0.75rem' }}
           >
             Task Monitoring
           </button>
           <button 
             onClick={() => setActiveTab('logs')} 
             className={`tab-btn ${activeTab === 'logs' ? 'active' : ''}`}
+            style={{ padding: '0.5rem 0.75rem', fontSize: '0.75rem' }}
           >
-            Activity Logs
+            System Logs
           </button>
         </div>
 
-        {/* Loading Spinner */}
+        {/* Dynamic Panels */}
         {loading ? (
           <div className="spinner-container">
             <div className="spinner"></div>
@@ -236,42 +232,15 @@ const AdminDashboard = () => {
         ) : (
           <div className="tab-content">
             
-            {/* Analytics Summary Tab */}
-            {activeTab === 'analytics' && (
-              <div className="glass-panel" style={{ padding: '2.5rem' }}>
-                <h3 style={{ marginBottom: '1rem', fontSize: '1.25rem' }}>Administrative Controls Overview</h3>
-                <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.875rem' }}>
-                  Use this console to oversee user access permissions, monitor active tasks across all departments, and trace actions in the Activity Log audit trail.
-                </p>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginTop: '2rem' }}>
-                  <div className="glass-panel" style={{ padding: '1.5rem', background: 'rgba(255, 255, 255, 0.02)' }}>
-                    <h4 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>User Management</h4>
-                    <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>Deactivate user logins, delete stale user accounts, and track status.</p>
-                    <button onClick={() => setActiveTab('users')} className="btn btn-secondary btn-sm" style={{ width: '100%' }}>Manage Users</button>
-                  </div>
-                  <div className="glass-panel" style={{ padding: '1.5rem', background: 'rgba(255, 255, 255, 0.02)' }}>
-                    <h4 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>Task Oversight</h4>
-                    <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>Review task descriptions and titles across users, delete obsolete tasks.</p>
-                    <button onClick={() => setActiveTab('tasks')} className="btn btn-secondary btn-sm" style={{ width: '100%' }}>Monitor Tasks</button>
-                  </div>
-                  <div className="glass-panel" style={{ padding: '1.5rem', background: 'rgba(255, 255, 255, 0.02)' }}>
-                    <h4 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>Activity Audits</h4>
-                    <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>Review all actions: logins, task creation, updates, and deletions.</p>
-                    <button onClick={() => setActiveTab('logs')} className="btn btn-secondary btn-sm" style={{ width: '100%' }}>Audit Logs</button>
-                  </div>
-                </div>
-              </div>
-            )}
-
             {/* User Management Tab */}
             {activeTab === 'users' && (
               <div className="glass-panel table-container">
                 <table className="custom-table">
                   <thead>
                     <tr>
-                      <th>Email Address</th>
-                      <th>Registered On</th>
-                      <th>System Role</th>
+                      <th>Email</th>
+                      <th>Registered</th>
+                      <th>Role</th>
                       <th>Status</th>
                       <th style={{ textAlign: 'right' }}>Actions</th>
                     </tr>
@@ -280,7 +249,7 @@ const AdminDashboard = () => {
                     {users.map(u => (
                       <tr key={u._id}>
                         <td style={{ fontWeight: '500' }}>
-                          {u.email} {u._id === user.id && <span style={{ color: 'var(--accent-color)', fontSize: '0.75rem' }}>(You)</span>}
+                          {u.email} {u._id === user.id && <span style={{ color: 'var(--accent-color)', fontSize: '0.7rem' }}>(You)</span>}
                         </td>
                         <td>{new Date(u.createdAt).toLocaleDateString()}</td>
                         <td>
@@ -297,14 +266,15 @@ const AdminDashboard = () => {
                           <button
                             onClick={() => handleToggleUserStatus(u)}
                             className="btn btn-secondary btn-sm"
-                            style={{ marginRight: '0.5rem' }}
+                            style={{ marginRight: '0.4rem', padding: '0.25rem 0.5rem', fontSize: '0.7rem' }}
                             disabled={u._id === user.id}
                           >
-                            {u.status === 'Active' ? 'Deactivate' : 'Activate'}
+                            {u.status === 'Active' ? 'Suspend' : 'Activate'}
                           </button>
                           <button
                             onClick={() => handleDeleteUser(u._id, u.email)}
                             className="btn btn-danger btn-sm"
+                            style={{ padding: '0.25rem 0.5rem', fontSize: '0.7rem' }}
                             disabled={u._id === user.id}
                           >
                             Delete
@@ -321,16 +291,16 @@ const AdminDashboard = () => {
             {activeTab === 'tasks' && (
               <div className="glass-panel table-container">
                 {tasks.length === 0 ? (
-                  <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                    No tasks found in the database.
+                  <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
+                    No system tasks recorded.
                   </div>
                 ) : (
                   <table className="custom-table">
                     <thead>
                       <tr>
-                        <th>Task Title</th>
-                        <th>Created By (Email)</th>
-                        <th>Created Date</th>
+                        <th>Task</th>
+                        <th>Owner</th>
+                        <th>Created</th>
                         <th>Status</th>
                         <th style={{ textAlign: 'right' }}>Actions</th>
                       </tr>
@@ -340,7 +310,7 @@ const AdminDashboard = () => {
                         <tr key={t._id}>
                           <td style={{ fontWeight: '500' }}>{t.title}</td>
                           <td style={{ color: 'var(--text-secondary)' }}>
-                            {t.createdBy ? t.createdBy.email : 'Unknown User'}
+                            {t.createdBy ? t.createdBy.email : 'Deleted User'}
                           </td>
                           <td>{new Date(t.createdAt).toLocaleDateString()}</td>
                           <td>
@@ -352,8 +322,9 @@ const AdminDashboard = () => {
                             <button
                               onClick={() => handleDeleteTask(t._id)}
                               className="btn btn-danger btn-sm"
+                              style={{ padding: '0.25rem 0.5rem', fontSize: '0.7rem' }}
                             >
-                              Delete Task
+                              Delete
                             </button>
                           </td>
                         </tr>
@@ -366,17 +337,17 @@ const AdminDashboard = () => {
 
             {/* Activity Logs Tab */}
             {activeTab === 'logs' && (
-              <div className="glass-panel" style={{ padding: '1rem' }}>
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  {logs.length === 0 ? (
-                    <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                      No activity logs recorded.
-                    </div>
-                  ) : (
-                    logs.map(log => (
-                      <div key={log._id} className="log-item">
+              <div className="glass-panel" style={{ background: 'var(--bg-secondary)', overflow: 'hidden' }}>
+                {logs.length === 0 ? (
+                  <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
+                    No activity logs recorded.
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    {logs.map(log => (
+                      <div key={log._id} className="log-item" style={{ padding: '0.65rem 1rem' }}>
                         <div className="log-info">
-                          <span className="log-details">{log.details}</span>
+                          <span className="log-details" style={{ fontSize: '0.775rem' }}>{log.details}</span>
                           <div className="log-meta">
                             <span className="log-user">{log.email}</span>
                             <span>•</span>
@@ -387,13 +358,13 @@ const AdminDashboard = () => {
                           log.action === 'Login' ? 'badge-user' : 
                           log.action === 'Task Creation' ? 'badge-active' :
                           log.action === 'Task Update' ? 'badge-pending' : 'badge-inactive'
-                        }`} style={{ textTransform: 'uppercase', fontSize: '0.65rem' }}>
-                          {log.action}
+                        }`} style={{ textTransform: 'uppercase', fontSize: '0.6rem', padding: '0.15rem 0.35rem' }}>
+                          {log.action.replace('Task ', '')}
                         </span>
                       </div>
-                    ))
-                  )}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
