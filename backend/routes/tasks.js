@@ -39,16 +39,16 @@ router.post('/', async (req, res) => {
 });
 
 // @route   GET /api/tasks
-// @desc    Get tasks (Admin views all, User views own)
+// @desc    Get tasks (Admin views all with query all=true, else User/Admin views own)
 // @access  Private
 router.get('/', async (req, res) => {
   try {
     let tasks;
-    if (req.user.role === 'Admin') {
-      // Admin sees all tasks, populated with the user who created them
+    if (req.user.role === 'Admin' && req.query.all === 'true') {
+      // Admin sees all tasks for monitoring, populated with the user who created them
       tasks = await Task.find({}).populate('createdBy', 'email').sort({ createdAt: -1 });
     } else {
-      // Normal user only sees their own tasks
+      // Normal user (and Admin on their personal board) only sees their own tasks
       tasks = await Task.find({ createdBy: req.user._id }).sort({ createdAt: -1 });
     }
 

@@ -46,7 +46,7 @@ const AdminDashboard = () => {
   // Fetch All Tasks
   const fetchTasks = async () => {
     try {
-      const res = await fetch(`${API_URL}/tasks`, {
+      const res = await fetch(`${API_URL}/tasks?all=true`, {
         headers: { 'Authorization': `Bearer ${user.token}` },
       });
       const data = await res.json();
