@@ -21,7 +21,7 @@ const Unauthorized = () => {
         }}>
           !
         </div>
-        <h2 style={{ fontSize: '2rem', marginBottom: '1rem', color: '#ffffff' }}>Access Denied</h2>
+        <h2 style={{ fontSize: '2rem', marginBottom: '1rem', color: '#000000' }}>Access Denied</h2>
         <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', fontSize: '0.875rem' }}>
           You do not have the required permissions to view this dashboard page. Only Admin users can access this resource.
         </p>

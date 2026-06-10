@@ -97,7 +97,7 @@ const Login = () => {
 
         <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
           Don't have an account?{' '}
-          <Link to="/register" style={{ color: 'var(--accent-color)', fontWeight: '600', textDecoration: 'none' }}>
+          <Link to="/register" style={{ color: '#2563eb', fontWeight: '600', textDecoration: 'underline' }}>
             Create one
           </Link>
         </div>

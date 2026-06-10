@@ -17,10 +17,10 @@ const Navbar = () => {
     <header className="app-header">
       <div className="container">
         <div className="navbar-inner">
-          <Link to="/dashboard" className="logo">
-            <span style={{ background: 'var(--accent-gradient)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Avidus</span>
-            <span style={{ fontSize: '0.875rem', fontWeight: '400', color: 'var(--text-secondary)' }}>Task & Role Portal</span>
-          </Link>
+           <Link to="/dashboard" className="logo">
+             <span style={{ color: '#000000', fontWeight: '800' }}>Avidus</span>
+             <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-secondary)' }}>Task & Role Portal</span>
+           </Link>
           
           <nav className="nav-links">
             <NavLink 

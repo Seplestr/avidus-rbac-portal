@@ -216,7 +216,7 @@ const Dashboard = () => {
                 key={filter}
                 onClick={() => setStatusFilter(filter)}
                 style={{
-                  background: statusFilter === filter ? 'rgba(255,255,255,0.05)' : 'transparent',
+                  background: statusFilter === filter ? '#e2e8f0' : 'transparent',
                   border: 'none',
                   color: statusFilter === filter ? 'var(--accent-color)' : 'var(--text-secondary)',
                   padding: '0.35rem 0.75rem',
@@ -224,7 +224,6 @@ const Dashboard = () => {
                   fontWeight: '600',
                   borderRadius: 'var(--radius-md)',
                   cursor: 'pointer',
-                  transition: 'color 0.1s'
                 }}
               >
                 {filter}
@@ -276,7 +275,7 @@ const Dashboard = () => {
                       width: '18px',
                       height: '18px',
                       borderRadius: '50%',
-                      border: `2px solid ${task.status === 'Completed' ? 'var(--accent-color)' : 'rgba(255, 255, 255, 0.2)'}`,
+                      border: `2px solid ${task.status === 'Completed' ? 'var(--accent-color)' : 'var(--border-color)'}`,
                       background: task.status === 'Completed' ? 'var(--accent-color)' : 'transparent',
                       cursor: 'pointer',
                       display: 'flex',
@@ -284,12 +283,11 @@ const Dashboard = () => {
                       justifyContent: 'center',
                       padding: 0,
                       outline: 'none',
-                      transition: 'all 0.1s'
                     }}
                     title={task.status === 'Completed' ? 'Mark Pending' : 'Mark Completed'}
                   >
                     {task.status === 'Completed' && (
-                      <span style={{ color: '#05070a', fontSize: '10px', fontWeight: 'bold' }}>✓</span>
+                      <span style={{ color: '#ffffff', fontSize: '10px', fontWeight: 'bold' }}>✓</span>
                     )}
                   </button>
                   
@@ -297,8 +295,8 @@ const Dashboard = () => {
                     <span 
                       style={{ 
                         fontSize: '0.85rem', 
-                        fontWeight: '500',
-                        color: task.status === 'Completed' ? 'var(--text-secondary)' : '#ffffff',
+                        fontWeight: '600',
+                        color: task.status === 'Completed' ? 'var(--text-muted)' : 'var(--text-primary)',
                         textDecoration: task.status === 'Completed' ? 'line-through' : 'none',
                         textOverflow: 'ellipsis',
                         overflow: 'hidden',
@@ -312,11 +310,10 @@ const Dashboard = () => {
                         style={{ 
                           fontSize: '0.75rem', 
                           color: 'var(--text-secondary)',
-                          opacity: 0.7,
                           textOverflow: 'ellipsis',
                           overflow: 'hidden',
                           whiteSpace: 'nowrap',
-                          marginTop: '1px'
+                          marginTop: '2px'
                         }}
                       >
                         {task.description}
