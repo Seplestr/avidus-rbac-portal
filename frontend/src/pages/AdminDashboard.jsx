@@ -17,6 +17,11 @@ const AdminDashboard = () => {
   const [firstLoad, setFirstLoad] = useState(true); // Prevent spinner flash on tab switches
   const [error, setError] = useState('');
 
+  // Set document title
+  useEffect(() => {
+    document.title = 'Admin Console | Avidus RBAC Portal';
+  }, []);
+
   // Fetch Metrics
   const fetchMetrics = async () => {
     try {

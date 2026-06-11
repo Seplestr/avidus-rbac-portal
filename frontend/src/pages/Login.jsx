@@ -11,6 +11,11 @@ const Login = () => {
   const { login, user } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  // Set document title
+  useEffect(() => {
+    document.title = 'Sign In | Avidus RBAC Portal';
+  }, []);
+
   // Redirect if already logged in
   useEffect(() => {
     if (user) {

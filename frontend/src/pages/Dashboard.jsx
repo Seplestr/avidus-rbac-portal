@@ -24,6 +24,11 @@ const Dashboard = () => {
   const [editDescription, setEditDescription] = useState('');
   const [editStatus, setEditStatus] = useState('Pending');
 
+  // Set document title
+  useEffect(() => {
+    document.title = 'My Tasks | Avidus RBAC Portal';
+  }, []);
+
   // Fetch tasks
   const fetchTasks = async () => {
     try {
